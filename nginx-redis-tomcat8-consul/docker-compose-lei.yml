@@ -1,0 +1,41 @@
+redis:
+  image: redis
+
+web:
+  image: tm8
+  environment:
+    SERVICE_NAME: web
+    SERVICE_TAGS: backend
+  volumes:
+  - "/code/1:/code"
+  links:
+  - redis:redis
+
+lb:
+  image: yeasy/nginx-consul-template:latest
+  hostname: lb
+  links:
+  - consulserver:consul
+  ports:
+  - "80:80"
+
+consulserver:
+  image: gliderlabs/consul-server:latest
+  hostname: consulserver
+  ports:
+  - "8300"
+  - "8400"
+  - "8500:8500"
+  - "53"
+  command: -data-dir /tmp/consul -bootstrap -client 0.0.0.0
+
+registrator:
+  image: gliderlabs/registrator:master
+  hostname: registrator
+  links:
+  - consulserver:consul
+  volumes:
+  - "/var/run/docker.sock:/tmp/docker.sock"
+  command: -internal consul://consul:8500
+  #command: consul://consul:8500  
+  
