@@ -12,3 +12,4 @@
 
 # 待补充
 1. ceph实现docker数据持久化
+2. DOCKER实现gitlab通过git runner同jenkins实现自动化集成
