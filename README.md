@@ -16,3 +16,5 @@
 3. Docker部署ELK实现容器日志的管理
 4. Docker部署Zabbix，实现对容器的管理
 
+# 常用别名
+alias gita='git pull && git commit -am "update" && git push -u origin master'
