@@ -13,3 +13,6 @@
 # 待补充
 1. ceph实现docker数据持久化
 2. DOCKER实现gitlab通过git runner同jenkins实现自动化集成
+3. Docker部署ELK实现容器日志的管理
+4. Docker部署Zabbix，实现对容器的管理
+
