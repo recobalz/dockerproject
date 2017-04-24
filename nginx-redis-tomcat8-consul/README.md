@@ -1,22 +1,33 @@
-启动consulserver镜像
+1. 启动consulserver镜像
+```
 root@d1:/# docker run -d --hostname consulserver --name consulserver -p 8500:8500 gliderlabs/consul-server -data-dir /tmp/consul -bootstrap -client 0.0.0.0
 
 通过url可以访问 http://consul:8500
-启动registrator，监听本地docker的sock文件，并将信息提交跟consulserver
+
+```
+2. 启动registrator，监听本地docker的sock文件，并将信息提交跟consulserver
+```
 root@d1:/# docker run -d --hostname registrator --name registrator --link consulserver:consul -v /var/run/docker.sock:/tmp/docker.sock gliderlabs/registrator:master -internal consul://consul:8500
-通过consulserver查看监听信息
+```
+3. 通过consulserver查看监听信息
+```
 root@d1:/# curl localhost:8500/v1/catalog/services
 {"consul":[],"consul-server-8300":[],"consul-server-8301":["udp"],"consul-server-8302":["udp"],"consul-server-8400":[],"consul-server-8500":[],"consul-server-8600":["udp"]}
 
 root@d1:/# curl localhost:8500/v1/catalog/nodes
 [{"Node":"consulserver","Address":"172.17.0.2","TaggedAddresses":{"wan":"172.17.0.2"},"CreateIndex":3,"ModifyIndex":25}]
-启动一个测试用的web服务
+```
+4. 启动一个测试用的web服务
+```
 root@d1:/# docker run -d -e SERVICE_NAME=web -e SERVICE_TAGS=backend tomcat:8.0
 
 
 root@d1:/# curl localhost:8500/v1/catalog/service/web
 [{"Node":"consulserver","Address":"172.17.0.2","ServiceID":"registrator:serene_stonebraker:8080","ServiceName":"web","ServiceTags":["backend"],"ServiceAddress":"172.17.0.7","ServicePort":8080,"ServiceEnableTagOverride":false,"CreateIndex":100,"ModifyIndex":100},{"Node":"consulserver","Address":"172.17.0.2","ServiceID":"registrator:unruffled_dubinsky:80","ServiceName":"web","ServiceTags":["backend"],"ServiceAddress":"172.17.0.4","ServicePort":80,"ServiceEnableTagOverride":false,"CreateIndex":56,"ModifyIndex":56}]
-启动nginx-consul-template服务
+
+```
+5. 启动nginx-consul-template服务
+```
 root@d1:/# docker run -d --name lb --link consulserver:consul -p 80:80 yeasy/nginx-consul-template
 
 此镜像包含了正常的nginx服务并追加了consul-template，查看其运行脚本
@@ -73,7 +84,10 @@ server {
 }
 
 consule-template会从consulserver处，匹配SERVICE_NAME=web且SERVIER_TAGS=backend的信息，写入到app.conf里，因此要匹配此脚本，必须保证负载容器的SERVICE_NAME和SERVICE_TAGS分别是web和backend
-增加web服务的数量,查看nginx服务实时更新
+
+```
+6. 增加web服务的数量,查看nginx服务实时更新
+```
 在未追加服务前，查看nginx的proxy情况
 root@d1:~# docker exec -ti lb cat /etc/nginx/conf.d/app.conf
 upstream app {
@@ -117,7 +131,9 @@ server {
     proxy_set_header X-Real-IP $remote_addr;
   }
 }
-docker-compose实现，出处
+```
+7. docker-compose实现，[出处](https://github.com/yeasy/docker-compose-files/tree/master/consul-discovery)
+```
 # This compose file will boot a typical scalable lb-backend  topology.
 # Registrator will listen on local docker socks to maintain all published containers. The information will be written to consulserver
 # consul-template will listen on consulserver and update local lb configuration.
@@ -162,8 +178,9 @@ registrator:
   - "/var/run/docker.sock:/tmp/docker.sock"
   command: -internal consul://consul:8500
   #command: consul://consul:8500
+```
 根据自己的实际情况，修改后的配置文件
-
+```
 redis:
   image: redis
 
@@ -203,5 +220,8 @@ registrator:
   volumes:
   - "/var/run/docker.sock:/tmp/docker.sock"
   command: -internal consul://consul:8500
-  #command: consul://consul:8500
-docker swarm docker-compose实现
+  #command: consul://consul:8500  
+  
+```
+
+8. docker swarm docker-compose实现
