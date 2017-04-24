@@ -18,4 +18,4 @@
 
 
 # 常用别名
-alias gita='git pull && git commit -am "update" && git push -u origin master'
+alias gita='git pull && git add -a && git commit -m "update" && git push -u origin master'
