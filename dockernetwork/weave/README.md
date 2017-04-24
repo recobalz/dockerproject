@@ -1,6 +1,6 @@
 两个节点，分别是C1和C2
 
-安装和配置，已C1为例
+安装和配置，已C1为例，C2同样配置
 ```
 curl -s -L git.io/weave -o /usr/local/bin/weave
 chmod a+x /usr/local/bin/weave
@@ -19,7 +19,7 @@ weave launch c2
 docker run --name a2 -ti weaveworks/ubuntu
 ```
 
-测试链接情况
+从C1和C2上新建容器，测试容器互联情况
 ```
 ......
 ```
