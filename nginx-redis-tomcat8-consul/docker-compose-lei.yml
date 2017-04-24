@@ -2,7 +2,7 @@ redis:
   image: redis
 
 web:
-  image: tm8
+  image: tomcat8-redis
   environment:
     SERVICE_NAME: web
     SERVICE_TAGS: backend
