@@ -30,7 +30,8 @@ harbor_admin_password = 123456
 root@dan:~# ./install.sh
 ```
 
-安装过程后下载相关的images，并导入habor.cfg
+安装过程后下载相关的images，并导入habor.cfg；默认情况下，harbor启动nginx的80端口，如果端口有冲突的话，可以自行修改映射即可。
+启动后，打开域名对于的URL即可，（后期补图）
 
 
 
