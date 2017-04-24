@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+   db:
+     image: mysql:latest
+     volumes:
+       - dbdata:/var/lib/mysql
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: wordpress
+
+   app:
+     depends_on:
+       - db
+     image: wordpress:latest
+     volumes:
+       - appdata:/var/www/html
+     restart: always
+     environment:
+       WORDPRESS_DB_HOST: db:3306
+       WORDPRESS_DB_PASSWORD: wordpress
+     links:
+       - db:mysql
+             
+   ngx:
+     depends_on:
+       - app
+     image: nginx:latest
+     volumes:
+       - nginxconf:/etc/nginx
+     ports:
+       - "80:80"
+     restart: always
+     links:
+      - app
+
+volumes:
+    dbdata:
+    appdata:
+    nginxconf:
+    
