@@ -1,3 +1,4 @@
+# gitlab
 1 容器的运行命令
 ```
 docker run --name='gitlab-ce' -d \
@@ -42,3 +43,54 @@ gitlab_rails['gitlab_email_from'] = 'name4mail@sina.com'
 1) 如果想要支持https的话，还需要配置一下nginx； 
 2) 如果不想在登录界面出现用户自注册的输入界面的话，可以在Admin Area->Settings->Sign-in Restrictions里将Sign-up enabled选项去掉； 
 3) 国内的网络大家都懂的，gitlab使用的Gravatar头像时常显示不出来，如果不想用这功能，可以在Admin Area->Settings->Account and Limit Settings里将Gravatar enabled选项去掉； 
+
+# GitLab Runner
+```
+docker run -d --name gitlab-runner --restart always \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+  gitlab/gitlab-runner:latest
+```
+容器启动后，需要Register the runner
+```
+docker exec -it gitlab-runner gitlab-runner register
+
+Please enter the gitlab-ci coordinator URL (e.g. https://gitlab.com )
+https://gitlab.com
+Please enter the gitlab-ci token for this runner
+xxx
+Please enter the gitlab-ci description for this runner
+my-runner
+INFO[0034] fcf5c619 Registering runner... succeeded
+Please enter the executor: shell, docker, docker-ssh, ssh?
+docker
+Please enter the Docker image (eg. ruby:2.1):
+ruby:2.1
+INFO[0037] Runner registered successfully. Feel free to start it, but if it's
+running already the config should be automatically reloaded!
+```
+
+#jenkins
+```
+docker run -d --name jenkins --restart always \
+-p 8080:8080 \
+-p 50000:50000 \
+-v jenkins_home:/var/jenkins_home \
+jenkins
+```
+Configuring logging
+```
+mkdir data
+cat > data/log.properties <<EOF
+handlers=java.util.logging.ConsoleHandler
+jenkins.level=FINEST
+java.util.logging.ConsoleHandler.level=FINEST
+EOF
+docker run --name myjenkins \
+-p 8080:8080 \
+-p 50000:50000 \
+--env JAVA_OPTS="-Djava.util.logging.config.file=/var/jenkins_home/log.properties" \
+-v `pwd`/data:/var/jenkins_home \
+jenkins
+```
+
