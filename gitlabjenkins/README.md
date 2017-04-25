@@ -51,7 +51,7 @@ docker run -d --name gitlab-runner --restart always \
   -v /srv/gitlab-runner/config:/etc/gitlab-runner \
   gitlab/gitlab-runner:latest
 ```
-容器启动后，需要Register the runner
+容器启动后，需要Register the runner；token的获取方式 Admin Area · GitLab  http://gitlaburl/admin/runners
 ```
 docker exec -it gitlab-runner gitlab-runner register
 
