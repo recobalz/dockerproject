@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+   db:
+     image: oddrationale/docker-shadowsocks
+     ports:
+       - "54285:54285"
+     command:
+       -s 0.0.0.0 -p 54285 -k yourpasswd -m aes-256-cfb
+       
