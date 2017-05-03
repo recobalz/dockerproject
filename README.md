@@ -30,7 +30,7 @@ git init
 git remote add -f origin https://github.com/recobalz/dockerproject.git
 echo ss >> .git/info/sparse-checkout 
 git pull origin master
-# ls 
+ls 
 ss
 ```
 
