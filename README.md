@@ -8,6 +8,7 @@
   6.1 weave
   6.2 flannel
 7. Docker开源仓库Harbor
+8. 通过ss实现科学上网
 
 
 # 待补充
@@ -19,3 +20,17 @@
 
 # 常用别名
 alias gita='git pull && git add -a && git commit -m "update" && git push -u origin master'
+
+# git小技巧
+1. 只pull指定的目录，以ss为例
+```
+mkdir ss
+cd ss
+git init
+git remote add -f origin https://github.com/recobalz/dockerproject.git
+echo ss >> .git/info/sparse-checkout 
+git pull origin master
+# ls 
+ss
+```
+
