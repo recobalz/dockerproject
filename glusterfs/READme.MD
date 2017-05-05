@@ -6,7 +6,7 @@ root@ubuntu:~# add-apt-repository ppa:gluster/glusterfs-3.10 && apt-get update -
 ```
 2. 安装glusterfs-server
 ```
-root@ubuntu:~# apt-get install glusterfs-server
+root@ubuntu:~# apt-get install glusterfs-server -y
 ```
 
 3. 给服务器新增加一块硬盘，作为gluster存储介质 "Partition, Format and mount the bricks"
@@ -112,9 +112,8 @@ State: Peer in Cluster (Connected)
 Configure your Gluster volume
 
 root@ubuntu:~# gluster volume create vg1 replica 2 transport tcp d1:/glusterdata/sdb1/vg1 d2:/glusterdata/sdb1/vg1
-
-root@ubuntu:~# gluster volume create vg1 replica 2 transport tcp d1:/glusterdata/sdb1/vg1 d2:/glusterdata/sdb1/vg1
 volume create: vg1: success: please start the volume to access data
+
 root@ubuntu:~# gluster volume list
 vg1
 root@ubuntu:~# gluster volume info
