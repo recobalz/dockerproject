@@ -1,0 +1,8 @@
+FROM stakater/kafka-with-consul-template
+MAINTAINER Dogthing
+ADD run /etc/service/kafka/run
+
+VOLUME /templates
+ENV KAFKA_HOME /opt/kafka
+ENV CONSUL_URL consul:8500
+ENV COMMAND "$KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties"
