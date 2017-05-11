@@ -1,0 +1,13 @@
+server '3'
+
+zookeeper:
+  image: zookeeper
+
+kafka
+
+lb:
+  image: kafka
+  hostname: lb
+  links:
+  - zookeeper:zk
+  ports:
