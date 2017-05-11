@@ -1,7 +1,7 @@
 FROM stakater/kafka-with-consul-template
 MAINTAINER Dogthing
-ADD ./kafka/run /etc/service/kafka/run
-ADD ./id/run /etc/service/id/run
+
+ADD run /etc/service/id/run
 
 VOLUME /templates
 ENV KAFKA_HOME /opt/kafka
