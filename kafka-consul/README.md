@@ -1,0 +1,1 @@
+原有kafka的镜像基础上，增加了一个consul-template的程序，通过runsv，执行修改broker.id为IP的最后一位，避免kafka动态增长的时候出现myid一致的情况；
