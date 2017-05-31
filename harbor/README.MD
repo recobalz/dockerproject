@@ -30,8 +30,34 @@ harbor_admin_password = 123456
 root@dan:~# ./install.sh
 ```
 
-安装过程后下载相关的images，并导入habor.cfg；默认情况下，harbor启动nginx的80端口，如果端口有冲突的话，可以自行修改映射即可。
-启动后，打开域名对于的URL即可，（后期补图）
+安装过程后下载相关的images，并导入habor.cfg；默认情况下，harbor启动nginx的80端口。
 
+如果需要修改harbor默认80端口，需要修改两个地方
+1. 修改docker-compose文件
+```
+  proxy:
+    image: vmware/nginx:1.11.5-patched
+    container_name: nginx
+    restart: always
+    volumes:
+      - ./common/config/nginx:/etc/nginx:z
+    networks:
+      - harbor
+    ports:
+      - 88:80
+      - 443:443
+      - 4443:4443
+```
+2. 修改register的config文件
+```
+root@reg:/usr/local/harbor# vim common/templates/registry/config.yml 
 
+auth:
+  token:
+    issuer: harbor-token-issuer
+    realm: $ui_url:88/service/token
+    rootcertbundle: /etc/registry/root.crt
+    service: harbor-registry
+
+```
 
