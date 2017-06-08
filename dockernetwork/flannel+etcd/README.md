@@ -1,4 +1,8 @@
 两个节点C1和C2，已经在C1和C2上部署了ETCD集群
+首先在etcd里注册一个网段，给flannel
+```
+etcdctl mk /coreos.com/network/config '{"Network":"172.17.0.0/16", "SubnetMin": "172.17.1.0", "SubnetMax": "172.17.254.0"}'
+```
 
 安装flanet
 ```
@@ -25,8 +29,14 @@ FLANNEL_IPMASQ=false
 修改docker脚本并重启启动（centos7）
 ```
 [root@c1 ~]# vim /usr/lib/systemd/system/docker.service 
+or
+[root@c1 ~]# vim /etc/systemd/system/docker.service
 ...
 ExecStart=/usr/bin/dockerd --bip=10.1.37.1/24   #bip后跟上的是{FLANNEL_SUBNET}
+or
+ExecStart=/usr/bin/dockerd --registry-mirror=https://794gworn.mirror.aliyuncs.com \
+	  --exec-opt native.cgroupdriver=systemd \
+          --bip=10.1.37.1/24 --ip-masq=true --mtu=1472
 ...
 [root@c1 ~]# systemctl daemon-reload
 [root@c1 ~]# systemctl restart docker.service
