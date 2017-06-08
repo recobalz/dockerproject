@@ -52,7 +52,7 @@ vi /etc/hosts
  
 
 
-# 使用我朋友的 yum 源，嘿嘿
+# 使用yum源
 
 cat <<EOF> /etc/yum.repos.d/kubernetes.repo
 [mritdrepo]
@@ -72,10 +72,10 @@ yum install -y socat kubelet kubeadm kubectl kubernetes-cni
  
 
 
-## 2.2 安装docker
+## 2.2 安装配置docker
 
  
-
+```
 wget -qO- https://get.docker.com/ | sh
 
 
@@ -86,80 +86,78 @@ vim /etc/sysctl.d/k8s.conf
 net.bridge.bridge-nf-call-iptables = 1
 net.bridge.bridge-nf-call-ip6tables = 1
 sysctl -p /etc/sysctl.d/k8s.conf
-
+```
 ## 2.3 安装 etcd 集群
-
+```
 
 yum -y install etcd
 
-# 创建etcd data 目录
 
-mkdir -p /opt/etcd/data
+cat /usr/lib/systemd/system/etcd.service
+[Unit]
+Description=etcd
+[Service]
+Environment=ETCD_NAME=kubernetes
+Environment=ETCD_DATA_DIR=/var/lib/etcd
+Environment=ETCD_LISTEN_CLIENT_URLS=http://172.16.164.5:4001,http://localhost:4001
+Environment=ETCD_LISTEN_PEER_URLS=http://172.16.164.5:7001,http://localhost:7001
+Environment=ETCD_INITIAL_ADVERTISE_PEER_URLS=http://172.16.164.5:7001,http://localhost:7001
+Environment=ETCD_ADVERTISE_CLIENT_URLS=http://172.16.164.5:4001,http://localhost:4001
+Environment=ETCD_INITIAL_CLUSTER_STATE=new
+Environment=ETCD_INITIAL_CLUSTER_TOKEN=Kubernetes
+Environment=ETCD_INITIAL_CLUSTER=kubernetes=http://172.16.164.5:7001,kubernetes=http://localhost:7001
+ExecStart=/usr/bin/etcd
+Type=notify
+[Install]
+WantedBy=multi-user.target
 
-chown -R etcd:etcd /opt/etcd/
-
-
-# 修改配置文件，/etc/etcd/etcd.conf 需要修改如下参数：
-
-
-ETCD_NAME=etcd1
-ETCD_DATA_DIR="/opt/etcd/data/etcd1.etcd"
-ETCD_LISTEN_PEER_URLS="http://10.6.0.140:2380"
-ETCD_LISTEN_CLIENT_URLS="http://10.6.0.140:2379,http://127.0.0.1:2379"
-ETCD_INITIAL_ADVERTISE_PEER_URLS="http://10.6.0.140:2380"
-ETCD_INITIAL_CLUSTER="etcd1=http://10.6.0.140:2380,etcd2=http://10.6.0.187:2380,etcd3=http://10.6.0.188:2380"
-ETCD_INITIAL_CLUSTER_STATE="new"
-ETCD_INITIAL_CLUSTER_TOKEN="k8s-etcd-cluster"
-ETCD_ADVERTISE_CLIENT_URLS="http://10.6.0.140:2379"
+```
 
  
 
- 
 
-# 修改 etcd 启动文件
-
-sed -i 's/\\\"${ETCD_LISTEN_CLIENT_URLS}\\\"/\\\"${ETCD_LISTEN_CLIENT_URLS}\\\" --listen-client-urls=\\\"${ETCD_LISTEN_CLIENT_URLS}\\\" --advertise-client-urls=\\\"${ETCD_ADVERTISE_CLIENT_URLS}\\\" --initial-cluster-token=\\\"${ETCD_INITIAL_CLUSTER_TOKEN}\\\" --initial-cluster=\\\"${ETCD_INITIAL_CLUSTER}\\\" --initial-cluster-state=\\\"${ETCD_INITIAL_CLUSTER_STATE}\\\"/g' /usr/lib/systemd/system/etcd.service
- 
 
 
  
 
 
 # 启动 etcd
-
+```
 systemctl enable etcd
 
 systemctl start etcd
 
 systemctl status etcd
-
+```
 
 # 查看集群状态
-
+```
 etcdctl cluster-health
-
+```
  
 
  
 
 ## 2.4 下载镜像
 
- 
+ registry.cn-hangzhou.aliyuncs.com/kube_containers/kubernetes-dashboard-amd64:v1.5.0
+```
 
-
-images=(kube-proxy-amd64:v1.5.1 kube-discovery-amd64:1.0 kubedns-amd64:1.9 kube-scheduler-amd64:v1.5.1 kube-controller-manager-amd64:v1.5.1 kube-apiserver-amd64:v1.5.1 etcd-amd64:3.0.14-kubeadm kube-dnsmasq-amd64:1.4 exechealthz-amd64:1.2 pause-amd64:3.0 kubernetes-dashboard-amd64:v1.5.0 dnsmasq-metrics-amd64:1.0)
+images=(kube-proxy-amd64:v1.5.1 kube-discovery-amd64:1.0 kubedns-amd64:1.9 kube-scheduler-amd64:v1.5.1 kube-controller-manager-amd64:v1.5.1 kube-apiserver-amd64:v1.5.1 etcd-amd64:3.0.14-kubeadm kube-dnsmasq-amd64:1.4 exechealthz-amd64:1.2 pause-amd64:3.0 kubernetes-dashboard-amd64:v1.5.1 dnsmasq-metrics-amd64:1.0)
 for imageName in ${images[@]} ; do
   docker pull jicki/$imageName
   docker tag jicki/$imageName gcr.io/google_containers/$imageName
   docker rmi jicki/$imageName
 done
 
-```
+images=(kube-proxy-amd64:v1.6.2 kube-discovery-amd64:1.0 kubedns-amd64:1.9 kube-scheduler-amd64:v1.6.2 kube-controller-manager-amd64:v1.6.2 kube-apiserver-amd64:v1.5.1 etcd-amd64:3.0.14-kubeadm kube-dnsmasq-amd64:1.4 exechealthz-amd64:1.2 pause-amd64:3.0 kubernetes-dashboard-amd64:v1.5.1 dnsmasq-metrics-amd64:1.0 k8s-dns-sidecar-amd64:1.14.1 k8s-dns-dnsmasq-nanny-amd64:1.14.1)
+for imageName in ${images[@]} ; do
+  docker pull registry.cn-hangzhou.aliyuncs.com/kube_containers/$imageName
+  docker tag registry.cn-hangzhou.aliyuncs.com/kube_containers/$imageName gcr.io/google_containers/$imageName
+  docker rmi registry.cn-hangzhou.aliyuncs.com/kube_containers/$imageName
+done
 
-```
-# 如果速度很慢，可配置一下加速
 
-docker 启动文件 增加 --registry-mirror="http://b438f72b.m.daocloud.io"
 
 ```
 
